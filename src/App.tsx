@@ -1,11 +1,15 @@
 import './App.css'
+import BankAccOpenForm from './Components/BankAccOpenForm'
 
 function App() {
 
 
   return (
     <>
-      <h1 className='text-danger'>Bank Account Opening Form</h1>
+      <div className='BankAccOpenForm'>
+        <BankAccOpenForm />
+      </div>
+
     </>
   )
 }
