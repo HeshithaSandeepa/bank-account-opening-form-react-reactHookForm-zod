@@ -1,11 +1,35 @@
 import { FieldValues, useForm } from 'react-hook-form';
 import '../CSS/BankAccOpenForm.css';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { dateSchema } from './DateValidation';
+// zod start--
+const schemaForValidation = z.object({
+  name: z.string().min(5, ("Name must be at least 5 characters")),
+
+  email: z.string().email(),
+
+  phone_no: z
+    .string()
+    .nonempty({ message: "Mobile number is required!" })
+    .min(10, "Phone number must be exactly 10 digits!")
+    .max(10, "Phone number must be exactly 10 digits!"),
+
+
+
+}).merge(dateSchema);
+// interface zod
+type FormData = z.infer<typeof schemaForValidation>;
+
+// zod end--
+
 
 const BankAccOpenForm = () => {
 
 
   //reactHookForm
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, formState: { errors } }
+    = useForm<FormData>({ resolver: zodResolver(schemaForValidation) });
 
   const onSubmit = (data: FieldValues) => {
     console.log(data);
@@ -21,11 +45,17 @@ const BankAccOpenForm = () => {
           <div >
             <label htmlFor='name' className='form-label'>Full Name</label>
             <input
-              {...register("name", { required: true })}
+              {...register('name')}
               id='name'
               type='text'
-              className='form-control' required />
+              className='form-control'
+            />
           </div>
+          {/* validation rule */}
+          {errors.name && (
+            <p className='text-danger'>{errors.name.message}</p>
+          )}
+
           <div>
             <label htmlFor='email' className='form-label'>Email</label>
             <input
@@ -33,30 +63,44 @@ const BankAccOpenForm = () => {
               id='email'
               type='text'
               className='form-control'
-              required
             />
           </div>
+          {/* validation rule */}
+          {errors.email && (
+            <p className='text-danger'>{errors.email.message}</p>
+          )
+
+          }
+
           <div>
-            <label htmlFor="phone-number" className="form-label">Phone Number</label>
+            <label htmlFor="phone_no" className="form-label">
+              Phone Number
+            </label>
             <input
-              {...register("phone-number")}
-              id="phone-number"
-              type="number"
+              {...register("phone_no")}
+              id="phone_no"
+              type="text"
               className="form-control"
-              required
-              maxLength={10}
-              minLength={10}
+              placeholder='0761236383'
             />
           </div>
+          {/* Validation Error Message */}
+          {errors.phone_no && (
+            <p className="text-danger">
+              {errors.phone_no.message}</p>)}
           <div>
-            <label htmlFor="date-of-birth" className="form-label">Date of Birth</label>
+            <label htmlFor="date_0f_birth" className="form-label">Date of Birth</label>
             <input
-              {...register("date-of-birth")}
-              id="date-of-birth"
-              type="date"
+              {...register("date_0f_birth")}
+              id="date_0f_birth"
+              type='date'
               className="form-control"
-              required />
+            />
           </div>
+          {/* validation rule */}
+          {errors.date_0f_birth && (
+            <p className='text-danger'>{errors.date_0f_birth.message}</p>
+          )}
         </div>
         {/* personal information end here */}
 
@@ -69,7 +113,7 @@ const BankAccOpenForm = () => {
               {...register("account-type")}
               id="account-type"
               className="form-select"
-              required
+
               defaultValue="">
               <option value="">Select...</option>
               <option value="1">Savings</option>
@@ -84,7 +128,7 @@ const BankAccOpenForm = () => {
               type="number"
               className="form-control"
               min="100"
-              required />
+            />
           </div>
           <div>
             <label htmlFor="currency" className="form-label">Currency</label>
@@ -92,7 +136,7 @@ const BankAccOpenForm = () => {
               {...register("currency")}
               id="currency"
               className="form-select"
-              required
+
               defaultValue="">
               <option value="">Select Currency...</option>
               <option value="1">USD</option>
@@ -112,16 +156,16 @@ const BankAccOpenForm = () => {
             id="street-address"
             type="text"
             className="form-control"
-            required />
+          />
         </div>
         <div>
-          <label htmlFor="city" className="form-label">City</label>
+          <label htmlFor="city-name" className="form-label">City</label>
           <input
-            {...register("city")}
-            id="city"
+            {...register("city-name")}
+            id="city-name"
             type="text"
             className="form-control"
-            required />
+          />
         </div>
         <div>
           <label htmlFor="zip-code" className="form-label">Zip Code</label>
@@ -130,18 +174,18 @@ const BankAccOpenForm = () => {
             id="zip-code"
             type="number"
             className="form-control"
-            required />
+          />
         </div>
         {/* Address ends here */}
         <div className="form-check mt-2 mb-2">
           <input
-            {...register("defaultCheck1")}
+            {...register("terms-condition")}
             className="form-check-input"
             type="checkbox"
             value=""
-            id="defaultCheck1"
-            required />
-          <label className="form-check-label" htmlFor="defaultCheck1">
+            id="condition"
+          />
+          <label className="form-check-label" htmlFor="condition">
             Terms & Conditions
           </label>
         </div>
