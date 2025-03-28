@@ -7,13 +7,44 @@ import { dateSchema } from './DateValidation';
 const schemaForValidation = z.object({
   name: z.string().min(5, ("Name must be at least 5 characters")),
 
-  email: z.string().email(),
+  email: z.string().email("You must be Enter valid email"),
 
   phone_no: z
     .string()
     .nonempty({ message: "Mobile number is required!" })
     .min(10, "Phone number must be exactly 10 digits!")
     .max(10, "Phone number must be exactly 10 digits!"),
+
+  account_type: z
+    .enum(["Savings", "Checking"], { message: "Please select an account type" }),
+
+  initial_deposit_amount: z
+    .preprocess((val) => Number(val), z.number({
+      invalid_type_error: "Initial Deposit Amount must be a number!",
+      required_error: "Initial Deposit Amount is required!",
+    })
+      .min(100, { message: "Initial Deposit Amount must be at least 100!" }),
+    ),
+
+  currency: z
+    .enum(['USD', 'EUR', 'LKR'], { message: "Please select currency type" }),
+
+  street_address: z
+    .string()
+    .nonempty({ message: "Street address is required!" })
+  ,
+
+  city_name: z
+    .string()
+    .nonempty({ message: "City name is required!" }),
+
+  zip_code: z
+    .string()
+    .nonempty({ message: "Zip code required!" })
+    .min(5, "zip code exactly 5 digits!")
+    .max(5, "zip code exactly 5 digits!"),
+
+
 
 
 
@@ -32,7 +63,7 @@ const BankAccOpenForm = () => {
     = useForm<FormData>({ resolver: zodResolver(schemaForValidation) });
 
   const onSubmit = (data: FieldValues) => {
-    console.log(data);
+    console.table(data);
   }
   return (
 
@@ -81,7 +112,7 @@ const BankAccOpenForm = () => {
               id="phone_no"
               type="text"
               className="form-control"
-              placeholder='0761236383'
+              placeholder='ex: 0761236383'
             />
           </div>
           {/* Validation Error Message */}
@@ -108,27 +139,34 @@ const BankAccOpenForm = () => {
         <div className="account-details">
           <h3 className="mt-4">Account Details</h3>
           <div>
-            <label htmlFor="account-type" className="form-label">Account Type</label>
+            <label htmlFor="account_type" className="form-label">Account Type</label>
             <select
-              {...register("account-type")}
-              id="account-type"
+              {...register("account_type")}
+              id="account_type"
               className="form-select"
 
               defaultValue="">
               <option value="">Select...</option>
-              <option value="1">Savings</option>
-              <option value="2">Checking</option>
+              <option value="Savings">Savings</option>
+              <option value="Checking">Checking</option>
             </select>
           </div>
+          {/* validation rule */}
+          {errors.account_type && (
+            <p className='text-danger'>{errors.account_type.message}</p>
+          )}
           <div>
-            <label htmlFor="initial-deposit-amount" className="form-label">Initial Deposit Amount</label>
+            <label htmlFor="initial_deposit_amount" className="form-label">Initial Deposit Amount</label>
             <input
-              {...register("initial-deposit-amount")}
-              id="initial-deposit-amount"
-              type="number"
+              {...register("initial_deposit_amount")}
+              id="initial_deposit_amount"
+              type="text"
               className="form-control"
-              min="100"
             />
+            {/* validation rule */}
+            {errors.initial_deposit_amount && (
+              <p className='text-danger'>{errors.initial_deposit_amount.message}</p>
+            )}
           </div>
           <div>
             <label htmlFor="currency" className="form-label">Currency</label>
@@ -139,43 +177,62 @@ const BankAccOpenForm = () => {
 
               defaultValue="">
               <option value="">Select Currency...</option>
-              <option value="1">USD</option>
-              <option value="2">EUR</option>
-              <option value="3">LKR</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="LKR">LKR</option>
             </select>
           </div>
+          {/* validation rule */}
+          {errors.currency && (
+            <p className='text-danger'>{errors.currency.message}</p>
+          )}
         </div>
         { /* Account details End here */}
 
         {/* Address start here */}
         <div>
           <h3 className="mt-4">Address</h3>
-          <label htmlFor="street-address" className="form-label">Street Address</label>
+          <label htmlFor="street_address" className="form-label">Street Address</label>
           <input
-            {...register("street-address")}
-            id="street-address"
+            {...register("street_address")}
+            id="street_address"
             type="text"
             className="form-control"
           />
         </div>
+        {/* validation */}
+        {errors.street_address && (
+          <p className='text-danger'>{errors.street_address.message}</p>
+        )}
+
         <div>
-          <label htmlFor="city-name" className="form-label">City</label>
+          <label htmlFor="city_name" className="form-label">City</label>
           <input
-            {...register("city-name")}
-            id="city-name"
+            {...register("city_name")}
+            id="city_name"
             type="text"
             className="form-control"
           />
         </div>
+        {errors.city_name && (
+          <p className='text-danger'>{errors.city_name.message}</p>
+        )}
+
         <div>
-          <label htmlFor="zip-code" className="form-label">Zip Code</label>
+          <label htmlFor="zip_code" className="form-label">Zip Code</label>
           <input
-            {...register("zip-code")}
-            id="zip-code"
+            {...register("zip_code")}
+            id="zip_code"
             type="number"
             className="form-control"
           />
         </div>
+        {/* validation */}
+        {errors.zip_code && (
+          <p className='text-danger'>{errors.zip_code.message}</p>
+        )}
+
+
         {/* Address ends here */}
         <div className="form-check mt-2 mb-2">
           <input
