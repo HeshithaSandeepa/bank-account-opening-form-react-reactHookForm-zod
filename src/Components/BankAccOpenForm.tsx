@@ -3,6 +3,8 @@ import '../CSS/BankAccOpenForm.css';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { dateSchema } from './DateValidation';
+import { useState } from 'react';
+
 // zod start--
 const schemaForValidation = z.object({
   name: z.string().min(5, ("Name must be at least 5 characters")),
@@ -44,6 +46,10 @@ const schemaForValidation = z.object({
     .min(5, "zip code exactly 5 digits!")
     .max(5, "zip code exactly 5 digits!"),
 
+  terms_condition: z
+    .literal(true, {
+      errorMap: () => ({ message: "You must accept the Terms & Conditions" }),
+    })
 
 
 
@@ -57,18 +63,23 @@ type FormData = z.infer<typeof schemaForValidation>;
 
 const BankAccOpenForm = () => {
 
+  // State to track submission status
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   //reactHookForm
-  const { register, handleSubmit, formState: { errors } }
+  const { register, handleSubmit, formState: { errors }, reset }
     = useForm<FormData>({ resolver: zodResolver(schemaForValidation) });
 
   const onSubmit = (data: FieldValues) => {
     console.table(data);
+    setIsSubmitted(true);
+    reset();
   }
   return (
 
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} className='needs-validation'>
       <div className="container form-style p-5 rounded-3 shadow" >
+
         <h1 className='text-center mb-5'>Bank Account Opening Form</h1>
         {/* personal information start here */}
         <div className="personal-information">
@@ -81,6 +92,9 @@ const BankAccOpenForm = () => {
               type='text'
               className='form-control'
             />
+            <div className="valid-feedback">
+              Looks good!
+            </div>
           </div>
           {/* validation rule */}
           {errors.name && (
@@ -236,19 +250,34 @@ const BankAccOpenForm = () => {
         {/* Address ends here */}
         <div className="form-check mt-2 mb-2">
           <input
-            {...register("terms-condition")}
-            className="form-check-input"
+            {...register("terms_condition")}
+            className={`form-check-input ${errors.terms_condition ? 'is-invalid' : ''}`}
             type="checkbox"
             value=""
-            id="condition"
+            id="terms_condition"
           />
-          <label className="form-check-label" htmlFor="condition">
+          <label className="form-check-label" htmlFor="terms_condition">
             Terms & Conditions
           </label>
         </div>
+        {/* validation  */}
+        {errors.terms_condition && (
+          <p className='text-danger'>You must accept the Terms & Conditions</p>
+        )}
 
         <button className="btn btn-primary mt-2" type="submit">Submit</button>
-      </div >
+
+        {isSubmitted && (
+          <div className="alert alert-success text-center alert-dismissible fade show mt-3" role="alert">
+            Your form was successfully submitted!
+            <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        )}
+      </div>
+
+
+
+
     </form>
   )
 }
